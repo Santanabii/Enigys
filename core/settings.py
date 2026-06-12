@@ -11,15 +11,22 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+# In development, use a default key. ALWAYS set SECRET_KEY in environment variables for production!
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-this-in-production')
+if os.getenv('SECRET_KEY') is None and not os.getenv('DEBUG', 'False') == 'True':
+    raise ValueError(
+        "SECRET_KEY environment variable must be set for production. "
+        "Generate one with: python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'"
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Parse ALLOWED_HOSTS from string to list
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host.strip()]
+
 # Also add your Render URL
-RENDER_URL = os.getenv('RENDER_EXTERNAL_URL', '').replace('https://', '').replace('http://', '')
+RENDER_URL = os.getenv('RENDER_EXTERNAL_URL', '').replace('https://', '').replace('http://', '').strip()
 if RENDER_URL:
     ALLOWED_HOSTS.append(RENDER_URL)
 
@@ -90,28 +97,44 @@ if 'DATABASE_URL' in os.environ:
         db_url = db_url.split('?')[0]
         os.environ['DATABASE_URL'] = db_url
 
-# CORS Configuration for Render frontend
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
-# Also allow your Vercel frontend
-VERCEL_URL = os.getenv('VERCEL_URL', '')
+# CORS Configuration
+# Helper function to parse comma-separated env vars safely
+def parse_env_list(env_var: str, default: str = '') -> list:
+    """Parse comma-separated environment variable into a list, filtering empty strings."""
+    value = os.getenv(env_var, default)
+    return [item.strip() for item in value.split(',') if item.strip()]
+
+# Start with environment-provided origins
+CORS_ALLOWED_ORIGINS = parse_env_list('CORS_ALLOWED_ORIGINS')
+
+# Add Vercel frontend if VERCEL_URL is set
+VERCEL_URL = os.getenv('VERCEL_URL', '').strip()
 if VERCEL_URL:
     CORS_ALLOWED_ORIGINS.append(f'https://{VERCEL_URL}')
     CORS_ALLOWED_ORIGINS.append(f'https://{VERCEL_URL}.vercel.app')
 
-# Add your production frontend URL
+# Add Render frontend URL from environment variable
+RENDER_FRONTEND_URL = os.getenv('RENDER_FRONTEND_URL', '').strip()
+if RENDER_FRONTEND_URL:
+    CORS_ALLOWED_ORIGINS.append(f'https://{RENDER_FRONTEND_URL}')
+
+# Add development URLs (safe for local testing)
 CORS_ALLOWED_ORIGINS.extend([
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://enigys-1.onrender.com',  # Replace with your Render URL
 ])
 
 # CSRF Trusted Origins (important for POST requests from frontend)
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+CSRF_TRUSTED_ORIGINS = parse_env_list('CSRF_TRUSTED_ORIGINS')
 CSRF_TRUSTED_ORIGINS.extend([
     'https://*.vercel.app',
     'http://localhost:5173',
     'http://localhost:3000',
 ])
+
+# If RENDER_FRONTEND_URL is set, add it to CSRF_TRUSTED_ORIGINS
+if RENDER_FRONTEND_URL:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_FRONTEND_URL}')
 
 # Allow credentials (cookies, authorization headers)
 CORS_ALLOW_CREDENTIALS = True
