@@ -90,7 +90,7 @@ if 'DATABASE_URL' in os.environ:
         db_url = db_url.split('?')[0]
         os.environ['DATABASE_URL'] = db_url
 
-# CORS Configuration for Vercel frontend
+# CORS Configuration for Render frontend
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
 # Also allow your Vercel frontend
 VERCEL_URL = os.getenv('VERCEL_URL', '')
@@ -102,7 +102,7 @@ if VERCEL_URL:
 CORS_ALLOWED_ORIGINS.extend([
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://enigys-frontend.vercel.app',  # Replace with your Vercel URL
+    'https://enigys-1.onrender.com',  # Replace with your Render URL
 ])
 
 # CSRF Trusted Origins (important for POST requests from frontend)
