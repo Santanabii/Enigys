@@ -25,7 +25,7 @@ class ContactInquiryAdmin(admin.ModelAdmin):
             'fields': ('inquiry_type', 'message')
         }),
         ('System Metadata', {
-            'fields': ('readonly_fields',),
+            'fields': ('created_at',),  # FIXED: Use 'created_at' instead of 'readonly_fields'
             'classes': ('collapse',), 
         }),
     )
