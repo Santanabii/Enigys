@@ -3,6 +3,7 @@ import os
 import dj_database_url
 from dotenv import load_dotenv
 from urllib.parse import urlparse
+from pathlib import Path
 
 load_dotenv()
 
