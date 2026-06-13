@@ -10,9 +10,9 @@ class ContactInquiry(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
+class Meta:
         verbose_name_plural = "Contact Inquiries"
         ordering = ['-created_at']
 
-    def __str__(self):
-        return f"{self.name} - {self.inquiry_type} ({self.created_at.strftime('%Y-%m-%d')})"
+def __str__(self):
+        return f"{self.name} - {self.inquiry_type}"  

@@ -17,10 +17,10 @@ class RequestForQuote(models.Model):
     compliance_confirmed = models.BooleanField(default=False)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"RFQ from {self.company_name} - {self.classification.upper()}"
+def __str__(self):
+    return f"{self.company_name} - {self.classification}"
 
-    class Meta:
+class Meta:
         verbose_name = "Request For Quote"
         verbose_name_plural = "Requests For Quotes"
         ordering = ['-submitted_at']
